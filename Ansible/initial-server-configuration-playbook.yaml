@@ -1,0 +1,154 @@
+---
+- name: Initial Server Configuration
+  hosts: all
+  become: yes
+
+  tasks:
+    # Nginx
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Start and enable Nginx service
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Deploy Nginx configuration file
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+      notify:
+        - Reload Nginx
+
+    # MySQL
+    - name: Install MySQL Server
+      apt:
+        name: mysql-server
+        state: present
+
+    - name: Start and enable MySQL service
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+
+    - name: Create MySQL database
+      mysql_db:
+        name: my_database
+        state: present
+
+    - name: Create MySQL user
+      mysql_user:
+        name: db_user
+        password: db_password
+        priv: '*.*:ALL'
+        state: present
+
+    # Redis
+    - name: Install Redis
+      apt:
+        name: redis-server
+        state: present
+
+    - name: Start and enable Redis service
+      service:
+        name: redis-server
+        state: started
+        enabled: yes
+
+    # Docker
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    # Git
+    - name: Install Git
+      apt:
+        name: git
+        state: present
+
+    # Terraform
+    - name: Install Terraform
+      apt:
+        name: unzip
+        state: present
+
+    - name: Download Terraform
+      get_url:
+        url: https://releases.hashicorp.com/terraform/1.5.4/terraform_1.5.4_linux_amd64.zip
+        dest: /tmp/terraform.zip
+
+    - name: Unzip Terraform
+      unarchive:
+        src: /tmp/terraform.zip
+        dest: /usr/local/bin/
+        remote_src: yes
+
+    - name: Ensure Terraform is executable
+      file:
+        path: /usr/local/bin/terraform
+        mode: '0755'
+
+    # Prometheus
+    - name: Install Prometheus
+      apt:
+        name: prometheus
+        state: present
+
+    - name: Start and enable Prometheus service
+      service:
+        name: prometheus
+        state: started
+        enabled: yes
+
+    - name: Deploy Prometheus configuration file
+      template:
+        src: prometheus.yml.j2
+        dest: /etc/prometheus/prometheus.yml
+      notify:
+        - Reload Prometheus
+
+    # Grafana
+    - name: Install Grafana
+      apt:
+        name: grafana
+        state: present
+
+    - name: Start and enable Grafana service
+      service:
+        name: grafana-server
+        state: started
+        enabled: yes
+
+    - name: Deploy Grafana provisioning configuration
+      template:
+        src: grafana_provisioning.yml.j2
+        dest: /etc/grafana/provisioning/datasources/datasources.yml
+      notify:
+        - Restart Grafana
+
+  handlers:
+    - name: Reload Nginx
+      service:
+        name: nginx
+        state: reloaded
+
+    - name: Reload Prometheus
+      service:
+        name: prometheus
+        state: reloaded
+
+    - name: Restart Grafana
+      service:
+        name: grafana-server
+        state: restarted

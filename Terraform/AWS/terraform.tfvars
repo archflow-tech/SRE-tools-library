@@ -1,0 +1,5 @@
+region         = "us-east-1"
+ami_id         = "ami-12345678"
+key_name       = "my-key-pair"
+rds_password   = "securepassword"
+domain_name    = "example.com"
