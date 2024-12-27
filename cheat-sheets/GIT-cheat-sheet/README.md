@@ -12,7 +12,7 @@ gh repo list <organization_name> --limit 1000 | while read -r repo _; do
 done
 ```
 
-Certainly! Here's a Git cheat sheet with the 20 most important commands presented in a markdown table format:
+A Git cheat sheet with the 20 most important commands:
 
 | Command                                  | Description                                                   |
 |------------------------------------------|---------------------------------------------------------------|
